@@ -21,6 +21,7 @@ class Step(Base):
     __tablename__ = 'steps'
     step_id = Column(Integer, primary_key=True)
     name_step = Column(String, nullable=False, unique=True)
+    buys = relationship('Buy', secondary='buy_steps', back_populates='steps')
 
 
 
@@ -38,6 +39,7 @@ class Client(Base):
     email = Column(String, nullable=False, unique=True)
     city_id = Column(Integer, ForeignKey('cities.city_id'), nullable=False, ondelete='CASCADE')
     buys = relationship('Buy', backref='client')
+    city = relationship('City', backref='clients')
 
 class Book(Base):
     __tablename__ = 'books'
@@ -47,12 +49,17 @@ class Book(Base):
     genre_id = Column(Integer, ForeignKey('genres.genre_id'), nullable=False, ondelete='CASCADE')
     price = Column(DECIMAL, CheckConstraint('price >= 0'), nullable=False)
     amount = Column(Integer, CheckConstraint('amount >= 0'), nullable=False)
+    genre = relationship('Genre', backref='books')
+    author = relationship('Author', backref='books')
+    buys = relationship('Buy', secondary='buy_books', back_populates='books')
 
 class Buy(Base):
     __tablename__ = 'buys'
     buy_id = Column(Integer, primary_key=True)
     buy_description = Column(String)
     client_id = Column(Integer, ForeignKey('clients.client_id'), nullable=False, ondelete='CASCADE')
+    books = relationship('Book', secondary='buy_books', back_populates='buys')
+    steps = relationship('Step', secondary='buy_steps', back_populates='buys')
 
 class BuyStep(Base):
     __tablename__ = 'buy_steps'
